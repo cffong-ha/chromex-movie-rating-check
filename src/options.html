@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Movie Rating Check — Options</title>
+    <link rel="stylesheet" href="options.css" />
+  </head>
+  <body>
+    <main>
+      <header>
+        <h1>Movie Rating Check</h1>
+        <p class="sub">
+          Hold a modifier key and hover a movie or TV title on any page to see its IMDb,
+          Rotten Tomatoes and Metacritic scores.
+        </p>
+      </header>
+
+      <section>
+        <h2>OMDb API key</h2>
+        <p class="help">
+          Ratings come from the <a href="https://www.omdbapi.com/apikey.aspx" target="_blank"
+          rel="noreferrer noopener">OMDb API</a>, which bundles IMDb, Rotten Tomatoes and
+          Metacritic in one request. The free tier allows 1000 requests per day. Your key is
+          stored in <code>chrome.storage.sync</code> and is only ever sent to
+          <code>omdbapi.com</code>.
+        </p>
+        <div class="row">
+          <input
+            id="apiKey"
+            type="password"
+            placeholder="e.g. a1b2c3d4"
+            autocomplete="off"
+            spellcheck="false"
+          />
+          <button id="toggleKey" type="button" class="ghost">Show</button>
+          <button id="testKey" type="button" class="ghost">Test</button>
+        </div>
+        <p id="keyStatus" class="status"></p>
+      </section>
+
+      <section>
+        <h2>Behaviour</h2>
+
+        <label class="field">
+          <span>Trigger key</span>
+          <select id="modifier">
+            <option value="Alt">Alt (Option on macOS)</option>
+            <option value="Shift">Shift</option>
+            <option value="Control">Control</option>
+          </select>
+        </label>
+
+        <label class="field">
+          <span>Hover delay before lookup</span>
+          <select id="hoverDelayMs">
+            <option value="120">120 ms (fast)</option>
+            <option value="250">250 ms (default)</option>
+            <option value="450">450 ms (relaxed)</option>
+            <option value="800">800 ms (deliberate)</option>
+          </select>
+        </label>
+
+        <label class="check">
+          <input id="enabled" type="checkbox" />
+          <span>Enabled — you can also toggle this by clicking the toolbar icon</span>
+        </label>
+
+        <label class="check">
+          <input id="includeSeries" type="checkbox" />
+          <span>Include TV series, not just movies</span>
+        </label>
+      </section>
+
+      <section>
+        <h2>Cache</h2>
+        <p class="help">
+          Results are cached locally for 7 days (misses for 1 day) so repeat hovers don't
+          spend your daily quota.
+        </p>
+        <button id="clearCache" type="button" class="ghost">Clear cached ratings</button>
+        <p id="cacheStatus" class="status"></p>
+      </section>
+
+      <footer>
+        <p id="saveStatus" class="status"></p>
+      </footer>
+    </main>
+
+    <script src="options.js"></script>
+  </body>
+</html>
