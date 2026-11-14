@@ -19,13 +19,23 @@ the scores and a link to the IMDb page.
 
 ## Install
 
-The extension is not on the Chrome Web Store — load it unpacked.
+Not on the Chrome Web Store, so it installs unpacked. Chrome has blocked
+installing `.crx` files from outside the Web Store since Chrome 73, so the
+download is a zip you unpack yourself — there is no one-click installer.
 
-1. Clone this repository.
-2. Open `chrome://extensions` and turn on **Developer mode** (top right).
-3. Click **Load unpacked** and select the repository folder.
-4. The options page opens on first install. Paste an OMDb API key (next section)
-   and click **Test**.
+1. **[Download `movie-rating-check.zip`](https://github.com/cffong-ha/chromex-movie-rating-check/raw/main/dist/movie-rating-check.zip)**
+   (~15 KB), or grab it from the
+   [releases page](https://github.com/cffong-ha/chromex-movie-rating-check/releases).
+2. Unzip it. You should get a folder containing `manifest.json`.
+3. Open `chrome://extensions` and turn on **Developer mode** (top right).
+4. Click **Load unpacked** and select that folder.
+5. The options page opens by itself. Paste an OMDb API key (next section) and
+   click **Test**.
+
+Keep the unzipped folder where it is — Chrome loads the extension from that
+path, so moving or deleting it disables the extension. To update, download the
+new zip, unpack it over the same folder, and hit **Reload** on
+`chrome://extensions`.
 
 ## You need a free OMDb API key
 
@@ -123,20 +133,38 @@ npm run test:e2e
   extensions in old headless mode, so the last two run headful under `xvfb-run`.
 
 ```bash
-npm run zip
+npm run build
 ```
 
-Builds `movie-rating-check.zip` for distribution.
+Rebuilds `dist/movie-rating-check.zip`. That zip is **committed on purpose** so
+the README download link works without a release. CI runs `npm run check:dist`,
+which hashes every file inside the zip against the working tree and fails the
+build if the two have drifted — so rebuild and commit the zip in any change
+that touches `manifest.json`, `src/` or `icons/`.
+
+Pushing a `v*` tag runs `.github/workflows/release.yml`, which rebuilds the zip
+and publishes it as a GitHub release:
+
+```bash
+git tag v0.1.0 && git push origin v0.1.0
+```
+
+That needs **Settings → Actions → General → Workflow permissions** set to
+*Read and write permissions*, or the release step is denied.
 
 ## Layout
 
 ```
-manifest.json          MV3 manifest
-src/title.js           title parsing (shared with the tests)
-src/content.js         hover detection + tooltip
-src/background.js      service worker: OMDb calls, cache, on/off state
+manifest.json            MV3 manifest
+src/title.js             title parsing (shared with the tests)
+src/content.js           hover detection + tooltip
+src/background.js        service worker: OMDb calls, cache, on/off state
 src/options.{html,css,js}
-icons/                 16 / 32 / 48 / 128 px
-test/title.test.js     unit tests
-test/e2e/              Playwright suites
+icons/                   16 / 32 / 48 / 128 px
+dist/                    the downloadable zip (committed)
+scripts/build-zip.sh     builds that zip
+scripts/check-dist.mjs   fails CI if the zip has gone stale
+test/title.test.js       unit tests
+test/e2e/                Playwright suites
+.github/workflows/       CI and tag-triggered release
 ```

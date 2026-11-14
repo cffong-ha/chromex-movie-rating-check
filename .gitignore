@@ -1,4 +1,7 @@
 node_modules/
 .tmp/
-*.zip
 .DS_Store
+
+# Build output is committed on purpose (dist/movie-rating-check.zip is the
+# download link in the README), but stray zips elsewhere are not.
+/*.zip

@@ -4,9 +4,10 @@
   "private": true,
   "description": "Chrome extension: hold Alt and hover a movie or TV title to see IMDb, Rotten Tomatoes and Metacritic scores.",
   "scripts": {
+    "build": "./scripts/build-zip.sh",
+    "check:dist": "node scripts/check-dist.mjs",
     "test": "node --test test/title.test.js",
-    "test:e2e": "node test/e2e/hover.test.js && xvfb-run -a node test/e2e/load.test.js && xvfb-run -a node test/e2e/omdb.test.js",
-    "zip": "zip -r movie-rating-check.zip manifest.json src icons"
+    "test:e2e": "node test/e2e/hover.test.js && xvfb-run -a node test/e2e/load.test.js && xvfb-run -a node test/e2e/omdb.test.js"
   },
   "devDependencies": {
     "playwright": "^1.63.0"
