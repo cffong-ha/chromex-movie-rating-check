@@ -39,14 +39,34 @@ fs.rmSync(PROFILE, { recursive: true, force: true });
   const permissions = await worker.evaluate(() => chrome.runtime.getManifest().host_permissions);
   check('host permissions limited to omdbapi', JSON.stringify(permissions) === '["https://www.omdbapi.com/*"]', JSON.stringify(permissions));
 
-  // Options page must load and render without CSP violations.
+  // The worker opens the options page itself on first install, so navigating
+  // our own tab to the same URL races it and Chromium aborts one navigation
+  // with the other. Wait for the page it opens and use that.
+  const optionsUrl = `chrome-extension://${extensionId}/src/options.html`;
+  const findOptionsPage = () => context.pages().find((p) => p.url().startsWith(optionsUrl));
+
+  const deadline = Date.now() + 15000;
+  let optionsPage = findOptionsPage();
+  while (!optionsPage && Date.now() < deadline) {
+    await new Promise((resolve) => setTimeout(resolve, 250));
+    optionsPage = findOptionsPage();
+  }
+  const autoOpened = Boolean(optionsPage);
+  if (!optionsPage) {
+    optionsPage = await context.newPage();
+    await optionsPage.goto(optionsUrl, { waitUntil: 'load' });
+  }
+  await optionsPage.waitForLoadState('load');
+  check('options page opens itself on first install', autoOpened, optionsPage.url());
+
+  // Options page must load and render without CSP violations. Reload with the
+  // listeners attached so nothing logged during the first load is missed.
   const errors = [];
-  const optionsPage = await context.newPage();
   optionsPage.on('pageerror', (error) => errors.push(String(error)));
   optionsPage.on('console', (message) => {
     if (message.type() === 'error') errors.push(message.text());
   });
-  await optionsPage.goto(`chrome-extension://${extensionId}/src/options.html`);
+  await optionsPage.reload({ waitUntil: 'load' });
   await optionsPage.waitForTimeout(400);
   check('options page has no JS/CSP errors', errors.length === 0, errors.join(' ; '));
   check('options page rendered the key field', await optionsPage.locator('#apiKey').isVisible());

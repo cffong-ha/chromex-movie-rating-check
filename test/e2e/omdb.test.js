@@ -35,6 +35,31 @@ const OMDB_BODY = {
     if (!pass) failures++;
   };
 
+  /**
+   * Poll for the tooltip instead of sleeping a fixed time: CI runners are
+   * slower than a laptop, and a real network round trip sits in the middle.
+   * Returns the tooltip text, or null if it never appeared.
+   */
+  const readTooltip = async (page) =>
+    page.evaluate(() => {
+      const host = document.querySelector('[data-movie-rating-check]');
+      if (!host || host.style.display === 'none') return null;
+      const card = host.shadowRoot.querySelector('.card');
+      const text = card.innerText.replace(/\n+/g, ' | ');
+      // The loading state is not a result; keep waiting for the real one.
+      return /Looking up ratings/.test(text) ? null : text;
+    });
+
+  const waitForTooltip = async (page, timeoutMs = 15000) => {
+    const deadline = Date.now() + timeoutMs;
+    for (;;) {
+      const text = await readTooltip(page);
+      if (text) return text;
+      if (Date.now() > deadline) return null;
+      await page.waitForTimeout(100);
+    }
+  };
+
   const server = http.createServer((_req, res) => {
     res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
     res.end(HTML);
@@ -79,13 +104,7 @@ const OMDB_BODY = {
       document.dispatchEvent(new MouseEvent('mousemove', { clientX: x, clientY: y, altKey: true, bubbles: true })),
     [box.x + 40, box.y + box.height / 2]
   );
-  await page.waitForTimeout(1500);
-
-  const text = await page.evaluate(() => {
-    const host = document.querySelector('[data-movie-rating-check]');
-    if (!host || host.style.display === 'none') return null;
-    return host.shadowRoot.querySelector('.card').innerText.replace(/\n+/g, ' | ');
-  });
+  const text = await waitForTooltip(page);
   check('content script injected on an http page', await hasHostAfterHover());
   check('tooltip appeared from a real worker fetch', Boolean(text), text);
   check('IMDb rating from OMDb shown', /9\.2\/10/.test(text || ''), text);
@@ -104,7 +123,8 @@ const OMDB_BODY = {
       document.dispatchEvent(new MouseEvent('mousemove', { clientX: x, clientY: y, altKey: true, bubbles: true })),
     [box.x + 40, box.y + box.height / 2]
   );
-  await page.waitForTimeout(1200);
+  const cachedText = await waitForTooltip(page);
+  check('cached lookup still renders the tooltip', Boolean(cachedText), cachedText);
   check('second lookup served from cache (no new OMDb call)', omdbRequests === before, `${omdbRequests - before} extra request(s)`);
 
   // Disabling via the toolbar icon must stop the tooltip.
