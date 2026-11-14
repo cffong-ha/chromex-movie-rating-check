@@ -69,6 +69,28 @@ fs.rmSync(PROFILE, { recursive: true, force: true });
   );
   check('lookup without a key returns needsKey', noKey && noKey.needsKey === true, JSON.stringify(noKey));
 
+  // Regression: getSettings must never hand the API key out. Content scripts
+  // run in every page the user visits, and they call getSettings.
+  await worker.evaluate(() => chrome.storage.sync.set({ apiKey: 'super-secret-key' }));
+  await optionsPage.waitForTimeout(200);
+  const withKey = await optionsPage.evaluate(
+    () => new Promise((resolve) => chrome.runtime.sendMessage({ type: 'getSettings' }, resolve))
+  );
+  check(
+    'getSettings never returns the API key',
+    !('apiKey' in withKey.settings) &&
+      !JSON.stringify(withKey.settings).includes('super-secret-key'),
+    JSON.stringify(withKey.settings)
+  );
+  check('getSettings reports key presence instead', withKey.settings.hasKey === true, JSON.stringify(withKey.settings.hasKey));
+
+  await worker.evaluate(() => chrome.storage.sync.set({ apiKey: '' }));
+  await optionsPage.waitForTimeout(200);
+  const withoutKey = await optionsPage.evaluate(
+    () => new Promise((resolve) => chrome.runtime.sendMessage({ type: 'getSettings' }, resolve))
+  );
+  check('hasKey is false when no key is set', withoutKey.settings.hasKey === false, JSON.stringify(withoutKey.settings.hasKey));
+
   const cleared = await optionsPage.evaluate(
     () => new Promise((resolve) => chrome.runtime.sendMessage({ type: 'clearCache' }, resolve))
   );
