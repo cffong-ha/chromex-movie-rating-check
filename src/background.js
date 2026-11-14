@@ -178,7 +178,10 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
   (async () => {
     try {
       if (message.type === 'getSettings') {
-        sendResponse({ ok: true, settings: await getSettings() });
+        // Content scripts run inside every page the user visits, so they get
+        // the settings minus the key. Only this worker ever uses the key.
+        const { apiKey, ...publicSettings } = await getSettings();
+        sendResponse({ ok: true, settings: { ...publicSettings, hasKey: Boolean(apiKey) } });
         return;
       }
 
