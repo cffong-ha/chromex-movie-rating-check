@@ -1,0 +1,161 @@
+:root {
+  --bg: #f6f7f9;
+  --card: #ffffff;
+  --text: #111827;
+  --muted: #6b7280;
+  --border: #d9dee5;
+  --accent: #2563eb;
+  --ok: #047857;
+  --bad: #b91c1c;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #15181c;
+    --card: #1f2328;
+    --text: #e6edf3;
+    --muted: #9aa4b2;
+    --border: #30363d;
+    --accent: #6cb6ff;
+    --ok: #3fb950;
+    --bad: #ff7b72;
+  }
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 32px 16px 56px;
+  background: var(--bg);
+  color: var(--text);
+  font: 14px/1.55 -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+main {
+  max-width: 620px;
+  margin: 0 auto;
+}
+
+header {
+  margin-bottom: 24px;
+}
+
+h1 {
+  margin: 0 0 6px;
+  font-size: 22px;
+}
+
+h2 {
+  margin: 0 0 10px;
+  font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--muted);
+}
+
+.sub {
+  margin: 0;
+  color: var(--muted);
+}
+
+section {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 18px;
+  margin-bottom: 16px;
+}
+
+.help {
+  margin: 0 0 12px;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+a {
+  color: var(--accent);
+}
+
+code {
+  font-size: 12px;
+  padding: 1px 4px;
+  border-radius: 4px;
+  background: rgba(127, 127, 127, 0.14);
+}
+
+.row {
+  display: flex;
+  gap: 8px;
+}
+
+input[type='password'],
+input[type='text'],
+select {
+  font: inherit;
+  padding: 7px 9px;
+  color: var(--text);
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 7px;
+}
+
+.row input {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+button {
+  font: inherit;
+  padding: 7px 12px;
+  border-radius: 7px;
+  cursor: pointer;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text);
+}
+
+button:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.field {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 7px 0;
+}
+
+.check {
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+  padding: 7px 0;
+}
+
+.check input {
+  margin-top: 3px;
+}
+
+.status {
+  margin: 10px 0 0;
+  min-height: 18px;
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.status.ok {
+  color: var(--ok);
+}
+
+.status.bad {
+  color: var(--bad);
+}
+
+footer {
+  text-align: center;
+}
