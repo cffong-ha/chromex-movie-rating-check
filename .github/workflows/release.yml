@@ -3,8 +3,10 @@ name: Release
 # Push a tag to publish a release with the extension zip attached:
 #   git tag v0.1.0 && git push origin v0.1.0
 #
-# Needs Settings -> Actions -> General -> Workflow permissions set to
-# "Read and write permissions", otherwise the release step is denied.
+# The `permissions: contents: write` block below grants this workflow alone
+# what it needs to publish a release. Leave the repo-wide default
+# (Settings -> Actions -> General -> Workflow permissions) at read-only so
+# every other workflow keeps a read-only token.
 
 on:
   push:
@@ -17,9 +19,9 @@ jobs:
   release:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
           node-version: '22'
 

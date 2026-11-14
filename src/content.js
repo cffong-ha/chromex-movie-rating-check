@@ -12,7 +12,6 @@
 
   let settings = {
     enabled: true,
-    apiKey: '',
     modifier: 'Alt',
     includeSeries: true,
     hoverDelayMs: 250,
@@ -37,6 +36,7 @@
   chrome.storage.onChanged.addListener((changes, area) => {
     if (area !== 'sync') return;
     for (const [key, { newValue }] of Object.entries(changes)) {
+      if (key === 'apiKey') continue; // the key stays in the service worker
       settings[key] = newValue;
     }
     if (!settings.enabled) hideTooltip();

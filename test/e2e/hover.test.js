@@ -35,7 +35,7 @@ window.chrome = {
     lastError: null,
     sendMessage(message, callback) {
       if (message.type === 'getSettings') {
-        callback({ ok: true, settings: { enabled: true, apiKey: 'fake', modifier: 'Alt', includeSeries: true, hoverDelayMs: 120 } });
+        callback({ ok: true, settings: { enabled: true, hasKey: true, modifier: 'Alt', includeSeries: true, hoverDelayMs: 120 } });
         return;
       }
       if (message.type === 'lookup') {
